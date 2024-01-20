@@ -1,10 +1,7 @@
 package com.cydeo.controller;
 
-ackage com.cydeo.fintracker.controller;
-
-
- import com.cydeo.fintracker.dto.CompanyDto;
- import com.cydeo.fintracker.service.CompanyService;
+ import com.cydeo.dto.CompanyDto;
+ import com.cydeo.service.CompanyService;
  import lombok.RequiredArgsConstructor;
  import org.springframework.stereotype.Controller;
  import org.springframework.ui.Model;
