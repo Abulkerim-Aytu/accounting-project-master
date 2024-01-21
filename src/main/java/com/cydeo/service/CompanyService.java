@@ -1,21 +1,32 @@
 package com.cydeo.service;
 
- import com.cydeo.dto.CompanyDto;
+import com.cydeo.dto.CompanyDto;
+import org.springframework.validation.BindingResult;
 
- import java.util.List;
+import java.util.List;
 
- public interface CompanyService {
+import java.util.List;
 
-     CompanyDto findById(Long companyId);
+public interface CompanyService {
+    List<CompanyDto> getCompanyDtoByLoggedInUser();
 
-     List<CompanyDto> getCompanies();
+    CompanyDto findById(Long companyId);
 
-     CompanyDto createCompany(CompanyDto newCompany);
+    List<CompanyDto> getCompanyList();
 
-     CompanyDto updateCompany(CompanyDto companyDto);
+    CompanyDto updateCompany(CompanyDto company);
 
-     void activateCompany(Long companyId);
+    CompanyDto createCompany(CompanyDto newCompany);
 
-     void deactivateCompany(Long companyId);
+    void activateCompany(long companyId);
 
- }
+    void deactivateCompany(long companyId);
+    BindingResult addTitleValidation(String title, BindingResult bindingResult);
+
+    BindingResult addUpdateTitleValidation(CompanyDto company, BindingResult bindingResult);
+
+    CompanyDto findByCompanyTitle(String companyTitle);
+
+//    List<String> getCounties();
+
+}

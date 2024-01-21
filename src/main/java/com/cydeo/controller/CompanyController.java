@@ -1,85 +1,87 @@
 package com.cydeo.controller;
 
- import com.cydeo.dto.CompanyDto;
- import com.cydeo.service.CompanyService;
- import lombok.RequiredArgsConstructor;
- import org.springframework.stereotype.Controller;
- import org.springframework.ui.Model;
- import org.springframework.web.bind.annotation.*;
+import com.cydeo.dto.CompanyDto;
+import com.cydeo.service.CompanyService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
- import java.util.List;
+import javax.validation.Valid;
 
- @Controller
- @RequiredArgsConstructor
- @RequestMapping("/companies")
- public class CompanyController {
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/companies")
+public class CompanyController {
+    private final CompanyService companyService;
+    @GetMapping("/list")
+    public String getCompanyList(Model model){
 
-     private final CompanyService companyService;
+        model.addAttribute("companies", companyService.getCompanyList());
 
-     @GetMapping("/list")
-     public String getCompanyList(Model model) {
+        return "/company/company-list";
+    }
 
-         model.addAttribute("companies", companyService.getCompanies());
+    @GetMapping("/create")
+    public String createCompany(Model model){
+        model.addAttribute("newCompany", new CompanyDto());
+        model.addAttribute("countries",companyService.getCounties());
 
-         return "company/company-list";
+        return "/company/company-create";
+    }
 
-     }
+    @PostMapping("/create")
+    public String createCompany(@Valid @ModelAttribute("newCompany") CompanyDto newCompany,
+                                BindingResult bindingResult, Model model){
 
-     @GetMapping("/create")
-     public String createCompany(Model model) {
+        // Title cannot be null and should be unique
+        bindingResult = companyService.addTitleValidation(newCompany.getTitle(),bindingResult);
 
-         model.addAttribute("newCompany", new CompanyDto());
-         model.addAttribute("countries", List.of("United States"));
+        if (bindingResult.hasFieldErrors()){
+            model.addAttribute("countries",companyService.getCounties());
+            return "/company/company-create";
+        }
 
-         return "company/company-create";
+        companyService.createCompany(newCompany);
 
-     }
+        return "redirect:/companies/list";
+    }
 
-     @PostMapping("/create")
-     public String createCompany(@ModelAttribute("newCompany") CompanyDto newCompany) {
+    @GetMapping("/update/{companyId}")
+    public String updateCompanies(@PathVariable("companyId") Long companyId, Model model){
 
-         companyService.createCompany(newCompany);
+        model.addAttribute("company", companyService.findById(companyId));
+        model.addAttribute("countries",companyService.getCounties());
 
-         return "redirect:/companies/list";
+        return "/company/company-update";
+    }
 
-     }
+    @PostMapping("/update/{id}")
+    public String updateCompanies(@Valid @ModelAttribute("company")CompanyDto company,
+                                  BindingResult bindingResult, Model model){
+        // Title cannot be null and should be unique
+        bindingResult = companyService.addUpdateTitleValidation(company,bindingResult);
 
-     @GetMapping("/update/{id}")
-     public String updateCompany(@PathVariable("id") Long companyId, Model model) {
+        if (bindingResult.hasFieldErrors()){
+            model.addAttribute("countries",companyService.getCounties());
+            return "/company/company-update";
+        }
 
-         model.addAttribute("company", companyService.findById(companyId));
-         model.addAttribute("countries", List.of("United States"));
+        companyService.updateCompany(company);
+        return "redirect:/companies/list";
+    }
+    @GetMapping("/activate/{company_id}")
+    public String activateCompany(@PathVariable("company_id") long company_id, Model model){
+        companyService.activateCompany(company_id);
+        System.out.println("hello: " + company_id);
+        return "redirect:/companies/list";
+    }
 
-         return "company/company-update";
+    @GetMapping("/deactivate/{company_id}")
+    public String deactivateCompany(@PathVariable("company_id") long company_id, Model model){
+        companyService.deactivateCompany(company_id);
+        return "redirect:/companies/list";
+    }
 
-     }
-
-     @PostMapping("/update/{id}")
-     public String updateCompany(@ModelAttribute("company") CompanyDto companyDto) {
-
-         companyService.updateCompany(companyDto);
-
-         return "redirect:/companies/list";
-
-     }
-
-     @GetMapping("/activate/{id}")
-     public String activateCompany(@PathVariable("id") Long companyId) {
-
-         companyService.activateCompany(companyId);
-
-         return "redirect:/companies/list";
-
-     }
-
-     @GetMapping("/deactivate/{id}")
-     public String deactivateCompany(@PathVariable("id") Long companyId) {
-
-         companyService.deactivateCompany(companyId);
-
-         return "redirect:/companies/list";
-
-     }
-
-
- }
+}
