@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateUser(@Valid @ModelAttribute("user") UserDTO userDTO, BindingResult bindingResult, @PathVariable("id") Long id, Model model) {
+    public String updateUser(@Valid @ModelAttribute("user") UserDto userDTO, BindingResult bindingResult, @PathVariable("id") Long id, Model model) {
         boolean emailExist = userService.findByUsernameCheck(userDTO.getUsername());
 
         if (bindingResult.hasErrors()) {
@@ -73,14 +73,14 @@ public class UserController {
     //    When End-User clicks on "Create-User" button, user_create page should be displayed with an Empty user form,
     @GetMapping("/create")
     public String createUser(Model model) {
-        model.addAttribute("newUser", new UserDTO());
+        model.addAttribute("newUser", new UserDto());
         model.addAttribute("userRoles", roleService.getAllRolesForCurrentUser());
         model.addAttribute("companies", companyService.getCompanyDtoByLoggedInUser());
         return "user/user-create";
     }
 
     @PostMapping("/create")
-    public String createUser(@Valid @ModelAttribute("newUser") UserDTO userDTO, BindingResult bindingResult, Model model) {
+    public String createUser(@Valid @ModelAttribute("newUser") UserDto userDTO, BindingResult bindingResult, Model model) {
         boolean emailExist = userService.findByUsernameCheck(userDTO.getUsername());
         if (bindingResult.hasErrors()) {
             if (emailExist) {

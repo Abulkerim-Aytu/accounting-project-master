@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     public UserDto findByUsername(String username) {
         User user = userRepository.findByUsername(username);
-        return mapperUtil.convert(user, new UserDTO());
+        return mapperUtil.convert(user, new UserDto());
     }
 
     @Override
