@@ -129,16 +129,5 @@ public class CompanyServiceImpl implements CompanyService {
         return mapperUtil.convert(foundCompany,new CompanyDto());
 
     }
-//    @Override
-//    public List<String> getCounties() {
-//        ResponseEntity<List<CountryInfoDTO>> countries = countryClient.getCountries(countriesApiKey);
-//        if (countries.getStatusCode().is2xxSuccessful()){
-//            return countries.getBody().stream()
-//                    .map(CountryInfoDTO::getName)
-//                    .collect(Collectors.toList());
-//        }
-////        throw new CountryServiceException("Countries didn't fetched"); // add exception when we do exception handling
-//        return List.of();
-//
-//    }
+
 }

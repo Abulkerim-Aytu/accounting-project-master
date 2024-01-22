@@ -27,6 +27,4 @@ public interface CompanyService {
 
     CompanyDto findByCompanyTitle(String companyTitle);
 
-//    List<String> getCounties();
-
 }

@@ -26,7 +26,6 @@ public class CompanyController {
     @GetMapping("/create")
     public String createCompany(Model model){
         model.addAttribute("newCompany", new CompanyDto());
-        model.addAttribute("countries",companyService.getCounties());
 
         return "/company/company-create";
     }
@@ -39,7 +38,6 @@ public class CompanyController {
         bindingResult = companyService.addTitleValidation(newCompany.getTitle(),bindingResult);
 
         if (bindingResult.hasFieldErrors()){
-            model.addAttribute("countries",companyService.getCounties());
             return "/company/company-create";
         }
 
@@ -52,8 +50,6 @@ public class CompanyController {
     public String updateCompanies(@PathVariable("companyId") Long companyId, Model model){
 
         model.addAttribute("company", companyService.findById(companyId));
-        model.addAttribute("countries",companyService.getCounties());
-
         return "/company/company-update";
     }
 
@@ -64,7 +60,6 @@ public class CompanyController {
         bindingResult = companyService.addUpdateTitleValidation(company,bindingResult);
 
         if (bindingResult.hasFieldErrors()){
-            model.addAttribute("countries",companyService.getCounties());
             return "/company/company-update";
         }
 
