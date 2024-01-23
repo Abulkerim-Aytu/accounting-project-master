@@ -3,10 +3,11 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Company;
 import com.cydeo.entity.User;
-import com.cydeo.mapper.MapperUtil;
+import com.cydeo.util.MapperUtil;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.repository.UserRepository;
 import com.cydeo.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,19 +17,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
     private final PasswordEncoder passwordEncoder;
     private final CompanyRepository companyRepository;
-
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, PasswordEncoder passwordEncoder, CompanyRepository companyRepository) {
-        this.userRepository = userRepository;
-        this.mapperUtil = mapperUtil;
-        this.passwordEncoder = passwordEncoder;
-        this.companyRepository = companyRepository;
-    }
 
     public UserDto findByUsername(String username) {
         User user = userRepository.findByUsername(username);

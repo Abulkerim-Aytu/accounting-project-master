@@ -3,7 +3,7 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Company;
-import com.cydeo.mapper.MapperUtil;
+import com.cydeo.util.MapperUtil;
 import com.cydeo.repository.CompanyRepository;
 import com.cydeo.enums.CompanyStatus;
 
@@ -24,13 +24,17 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
     private final SecurityService securityService;
     private final MapperUtil mapperUtil;
     private final CompanyRepository repository;
-    @Value("${COUNTRIES_API_KEY}")
-    private String countriesApiKey;
+
+    public CompanyServiceImpl(SecurityService securityService, MapperUtil mapperUtil, CompanyRepository repository) {
+        this.securityService = securityService;
+        this.mapperUtil = mapperUtil;
+        this.repository = repository;
+    }
+
 
     @Override
     public CompanyDto findById(Long companyId) {
