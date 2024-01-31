@@ -1,4 +1,4 @@
-package com.cydeo.fintracker.service.unit;
+package com.cydeo.fintracker.service.impl;
 
 import com.cydeo.fintracker.dto.CategoryDto;
 import com.cydeo.fintracker.entity.Category;
