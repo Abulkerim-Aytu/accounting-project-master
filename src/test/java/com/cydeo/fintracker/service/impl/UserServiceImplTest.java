@@ -161,7 +161,7 @@ class UserServiceImplTest {
     void should_return_all_list() {
 
         Authentication auth = mock(Authentication.class);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+//        SecurityContextHolder.getContext().setAuthentication(auth);
 
 
         //GIVEN
