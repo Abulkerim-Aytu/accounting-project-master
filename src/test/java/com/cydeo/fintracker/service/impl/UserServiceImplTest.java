@@ -1,17 +1,20 @@
 package com.cydeo.fintracker.service.impl;
 
 import com.cydeo.fintracker.dto.UserDto;
+import com.cydeo.fintracker.entity.Company;
 import com.cydeo.fintracker.entity.User;
 import com.cydeo.fintracker.exception.CategoryNotFoundException;
 import com.cydeo.fintracker.exception.UserNotFoundException;
 import com.cydeo.fintracker.repository.CompanyRepository;
 import com.cydeo.fintracker.repository.UserRepository;
 import com.cydeo.fintracker.util.MapperUtil;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.xmlunit.util.Mapper;
 
@@ -132,7 +135,71 @@ class UserServiceImplTest {
     }
 
 
-    
+    @Test
+    void user_should_be_update() {
+
+        //GIVEN
+        UserDto userDTO = new UserDto();
+        userDTO.setId(1L);
+        userDTO.setUsername("updatedUsername");
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("username");
+
+        //WHEN
+        when(userRepository.findByUsername(userDTO.getUsername())).thenReturn(Optional.of(user));
+        when(mapperUtil.convert(eq(userDTO), any(User.class))).thenReturn(user);
+
+        userService.update(userDTO);
+
+        //THEN
+        assertEquals(user.getId(), userDTO.getId());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void should_return_all_list() {
+
+        Authentication auth = mock(Authentication.class);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+
+        //GIVEN
+        User loggedInUser = new User();
+        loggedInUser.setUsername("username");
+        loggedInUser.setId(2L); // Assuming a non-admin user
+
+        Company company = new Company();
+        company.setId(1L);
+        company.setTitle("Abc");
+
+        UserDto userDTO = new UserDto();
+
+        loggedInUser.setCompany(company);
+
+        // Mock the behavior of the security service to return the mock user
+        when(securityServiceImpl.getLoggedInUser()).thenReturn(userDTO);
+
+        when(userRepository.findByUsername("username")).thenReturn(Optional.of(loggedInUser));
+        when(companyRepository.findById(loggedInUser.getCompany().getId())).thenReturn(Optional.of(company));
+
+        List<User> userList = new ArrayList<>();
+        userList.add(loggedInUser);
+        when(userRepository.findAllUserWithCompanyAndIsDeleted(company, false)).thenReturn(userList);
+
+        when(mapperUtil.convert(eq(User.class), any(UserDto.class))).thenReturn(userDTO);
+
+        //WHEN
+        List<UserDto> result = userService.listAllUsers();
+
+        //THEN
+        assertEquals(1, result.size());
+        verify(userRepository).findByUsername("username");
+        verify(companyRepository).findById(loggedInUser.getCompany().getId());
+        verify(userRepository).findAllUserWithCompanyAndIsDeleted(company, false);
+        verify(mapperUtil, times(2)).convert(any(User.class), any(UserDto.class));
+
+    }
 
 
 }
