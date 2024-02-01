@@ -47,86 +47,101 @@ class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
 
-
+//    ----------findUserById()----------
     @Test
     void should_throw_an_exception_when_User_does_not_exist() {
-
+//        GIVEN
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
+//        WHEN
         Throwable throwable = catchThrowable(() -> userService.findUserById(anyLong()));
 
+//        THEN
         assertThat(throwable).isInstanceOf(UserNotFoundException.class);
+
     }
 
     @Test
     void should_return_the_User_when_User_exist() {
 
+//        GIVEN
         User user = new User();
         user.setId(1L);
-
         UserDto userDto = new UserDto();
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-
         when(mapperUtil.convert(user, new UserDto())).thenReturn(userDto);
 
+//        WHEN
         UserDto result = userService.findUserById(1L);
 
+//        THEN
         assertThat(result).isEqualTo(userDto);
     }
 
 
+    //    ----------findByUsername()----------
     @Test
     void should_not_find_user_by_username() {
+//        GIVEN
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
+//        WHEN
         Throwable throwable = catchThrowable(() -> userService.findByUsername(anyString()));
 
+//        THEN
         assertThat(throwable).isInstanceOf(UserNotFoundException.class);
-
     }
 
     @Test
     void should_find_the_User_by_username() {
 
+//        GIVEN
         User user = new User();
         user.setUsername("test");
 
-
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-
         when(mapperUtil.convert(user, new UserDto())).thenReturn(new UserDto());
 
+//        WHEN
         UserDto result = userService.findByUsername("test");
 
+//        THEN
         assertThat(result.getUsername()).isEqualTo("test");
     }
 
-
+    //    ----------save()----------
     @Test
-    void should_user_save() {
+    void should_save_user() {
         //GIVEN
         UserDto userDTO = new UserDto();
         userDTO.setUsername("username");
         userDTO.setPassword("testPassword");
         User user = new User();
+        when(mapperUtil.convert(eq(userDTO), any(User.class))).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+        when(mapperUtil.convert(eq(user), any(UserDto.class))).thenReturn(userDTO);
 
         //WHEN
-        when(mapperUtil.convert(eq(userDTO), any(User.class))).thenReturn(user);
+        UserDto userdto = userService.save(userDTO);
 
         //THEN
         Assertions.assertNotNull(user.getUsername());
+//        Assertions.assertNotNull(userRepository.findByUsername(userdto.getUsername()));
         verify(userRepository).save(user);
     }
 
+
+    //    ----------delete()----------
     @Test
     void should_soft_delete_for_user() {
         //GIVEN
         User user = new User();
         user.setId(1L);
 
-        //WHEN
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        //WHEN
         userService.delete(user.getId());
 
         //THEN
@@ -134,7 +149,7 @@ class UserServiceImplTest {
         verify(userRepository).findById(anyLong());
     }
 
-
+    //    ----------update()----------
     @Test
     void user_should_be_update() {
 
@@ -146,10 +161,10 @@ class UserServiceImplTest {
         user.setId(1L);
         user.setUsername("username");
 
-        //WHEN
         when(userRepository.findByUsername(userDTO.getUsername())).thenReturn(Optional.of(user));
         when(mapperUtil.convert(eq(userDTO), any(User.class))).thenReturn(user);
 
+        //WHEN
         userService.update(userDTO);
 
         //THEN
@@ -157,6 +172,7 @@ class UserServiceImplTest {
         verify(userRepository).save(user);
     }
 
+    //    ----------listallUser()----------
     @Test
     void should_return_all_list() {
 
