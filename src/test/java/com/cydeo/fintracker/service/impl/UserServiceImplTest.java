@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.xmlunit.util.Mapper;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +46,9 @@ class UserServiceImplTest {
     @Mock
     CompanyRepository companyRepository;
 
+    @Mock
+    PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -58,6 +63,7 @@ class UserServiceImplTest {
 
 //        THEN
         assertThat(throwable).isInstanceOf(UserNotFoundException.class);
+        assertThat(throwable).hasMessage("User not found.");
 
     }
 
@@ -100,8 +106,10 @@ class UserServiceImplTest {
         User user = new User();
         user.setUsername("test");
 
+        UserDto userDto = new UserDto();
+
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        when(mapperUtil.convert(user, new UserDto())).thenReturn(new UserDto());
+        when(mapperUtil.convert(user, new UserDto())).thenReturn(userDto);
 
 //        WHEN
         UserDto result = userService.findByUsername("test");
@@ -118,17 +126,18 @@ class UserServiceImplTest {
         userDTO.setUsername("username");
         userDTO.setPassword("testPassword");
         User user = new User();
+
         when(mapperUtil.convert(eq(userDTO), any(User.class))).thenReturn(user);
-        when(userRepository.save(user)).thenReturn(user);
-        when(mapperUtil.convert(eq(user), any(UserDto.class))).thenReturn(userDTO);
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        User storedUser = new User();
+        when(userRepository.save(any(User.class))).thenReturn(storedUser);
 
         //WHEN
-        UserDto userdto = userService.save(userDTO);
+        UserDto result = userService.save(userDTO);
 
         //THEN
-        Assertions.assertNotNull(user.getUsername());
-//        Assertions.assertNotNull(userRepository.findByUsername(userdto.getUsername()));
-        verify(userRepository).save(user);
+        assertNotNull(result);
+        verify(mapperUtil, times(1)).convert(eq(storedUser), any(UserDto.class));
     }
 
 
