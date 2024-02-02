@@ -1,4 +1,4 @@
-package com.cydeo.aspect;
+package com.cydeo.fintracker.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
