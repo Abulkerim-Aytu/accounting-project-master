@@ -1,4 +1,4 @@
-package com.cydeo.annotation;
+package com.cydeo.fintracker.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
