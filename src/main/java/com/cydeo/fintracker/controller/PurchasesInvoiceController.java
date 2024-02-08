@@ -48,11 +48,11 @@ public class PurchasesInvoiceController {
     }
 
     @PostMapping("/create")
-    public String savePurchaseInvoice(@ModelAttribute("newPurchaseInvoice") InvoiceDto invoice, BindingResult bindingResult, Model model){
+    public String savePurchaseInvoice(@Valid @ModelAttribute("newPurchaseInvoice") InvoiceDto invoice, BindingResult bindingResult, Model model){
 
         if (bindingResult.hasErrors()){
             model.addAttribute("vendors", clientVendorService.getAllClientVendors(ClientVendorType.VENDOR));
-            return "/invoice/purchase-invoice-create";
+            return "invoice/purchase-invoice-create";
         }
 
         invoiceService.save(invoice, InvoiceType.PURCHASE);
@@ -67,16 +67,18 @@ public class PurchasesInvoiceController {
         model.addAttribute("vendors", clientVendorService.getAllClientVendors(ClientVendorType.VENDOR));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
         model.addAttribute("products", productService.getProducts());
-        model.addAttribute("invoiceProducts", invoiceProductService.listAllInvoiceProduct(id));
+        model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(id, false));
 
         return "invoice/purchase-invoice-update";
     }
 
     @PostMapping("/update/{id}")
     public String updatePurchaseInvoice(@PathVariable("id") Long id, @ModelAttribute("newPurchaseInvoice") InvoiceDto invoiceDto) {
+        InvoiceDto byId = invoiceService.findById(id);
+        invoiceDto.setId(byId.getId());
         invoiceService.save(invoiceDto, InvoiceType.PURCHASE);
         invoiceService.createNewPurchaseInvoice();
-        return "invoice/purchase-invoice-update";
+        return "redirect:/purchaseInvoices/update/" + id;
     }
 
     @PostMapping("/addInvoiceProduct/{id}")
@@ -86,18 +88,18 @@ public class PurchasesInvoiceController {
             model.addAttribute("invoice", invoiceService.findById(id));
             model.addAttribute("vendors", clientVendorService.getAllClientVendors(ClientVendorType.VENDOR));
             model.addAttribute("products", productService.getProducts());
-            model.addAttribute("invoiceProducts", invoiceProductService.listAllInvoiceProduct(id));
+            model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(id, false));
             return "invoice/purchase-invoice-update";
         }
         invoiceProductService.save(invoiceProductDto, id);
-        model.addAttribute("invoiceProducts", invoiceProductService.listAllInvoiceProduct(id));
+        model.addAttribute("invoiceProducts", invoiceProductService.findAllByInvoiceIdAndIsDeleted(id, false));
         return "redirect:/purchaseInvoices/update/" + id;
 
     }
 
     @GetMapping("/delete/{id}")
     public String deletePurchaseInvoice(@PathVariable("id") Long id) {
-        invoiceService.delete(id);
+        invoiceService.deleteByInvoice(id);
         return "redirect:/purchaseInvoices/list";
     }
 
