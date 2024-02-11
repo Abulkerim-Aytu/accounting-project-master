@@ -45,6 +45,7 @@ public class SalesInvoiceController {
 
     @PostMapping("/create")
     public String saveSalesInvoice(@Valid @ModelAttribute("newSalesInvoice") InvoiceDto invoice, BindingResult bindingResult, Model model) {
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("clients", clientVendorService.getAllClientVendors(ClientVendorType.CLIENT));
             return "invoice/sales-invoice-create";
@@ -75,9 +76,13 @@ public class SalesInvoiceController {
     public String addInvoiceProduct(@PathVariable("id") Long id,
                                      @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto,
                                      BindingResult bindingResult, Model model) {
+
+        bindingResult = invoiceProductService.checkProductStockBeforeAddingToInvoice(invoiceProductDto, id, bindingResult);
+
+
         if (productService.checkInventory(invoiceProductDto)) {
             bindingResult.rejectValue("quantity", "",
-                    "Not enough " + "<" + invoiceProductDto.getProduct().getName() + ">" + " quantity to sell...");
+                    "The quantity entered for " + invoiceProductDto.getProduct().getName() + " exceeding the total stock. Total stock for this product is: " + invoiceProductDto.getProduct().getQuantityInStock());
         }
         if (bindingResult.hasErrors()) {
             model.addAttribute("invoice", invoiceService.findById(id));
@@ -93,7 +98,7 @@ public class SalesInvoiceController {
 
     @GetMapping("/delete/{id}")
     public String deleteSalesInvoiceById(@PathVariable("id") Long id) {
-        invoiceService.delete(id);
+        invoiceService.deleteByInvoice(id);
         return "redirect:/salesInvoices/list";
     }
 
